@@ -4,22 +4,21 @@
    [clojure.string :as string]
    [clojure.core.match :refer [match]]
    [clojure.pprint :as p]
+   [clojure.set :refer [union]]
+   [clojure.math.combinatorics :as combo]
    [digest :refer [md5]]))
 
 ;; day 1
 
 (def prob1 (slurp (io/resource "prob1")))
 
-(defn prob1-fn [accum x]
-  ((if (= \( x) inc dec) accum))
-
 ;; part 1
-#_(reduce prob1-fn 0 prob1)
+#_(reduce + (map {\( 1 \) -1} prob1))
 
 ;; part 2
 #_(count
    (take-while #(not= % -1)
-               (reductions prob1-fn 0 prob1)))
+               (reductions + 0 (map {\( 1 \) -1} prob1))))
 
 ;; day 2
 
@@ -348,3 +347,44 @@ NOT y -> i"))))
 
 ;; part 2
 #_(reduce + 0 (map #(- (expand-len %) (count %)) prob8))
+
+;; day 9
+
+(def prob9
+  (line-seq (io/reader (io/resource "prob9"))))
+
+(defn tokens [x] (read-string (str "(" x ")") ))
+
+(def dist-map
+  (into {} (map (comp (fn [[a _ b _ c]] [#{a b} c])
+                      tokens)
+                prob9)))
+
+(def towns (reduce union (keys dist-map)))
+
+(comment
+
+  towns
+
+  ;; runtime complexity
+  (* 8 7 6 5 4 3 2 1)
+  
+  ;; check runtime complexity 
+  (count (combo/permutations towns))
+
+  ;; part 1
+  (reduce min 
+          (map
+           #(reduce + (map (comp dist-map set)
+                           (partition 2 1 %)))
+           (combo/permutations towns)))
+  
+  ;; part 2
+  (reduce max ;; <- just change min to max here
+          (map
+           #(reduce + (map (comp dist-map set)
+                           (partition 2 1 %)))
+           (combo/permutations towns)))
+  
+)
+
