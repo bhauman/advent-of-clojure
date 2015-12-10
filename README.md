@@ -12,4 +12,4 @@ See the [`src/advent/core.clj`](https://github.com/bhauman/advent-of-clojure/blo
 
 ![advent tree](https://raw.githubusercontent.com/bhauman/advent-of-clojure/master/resources/advent_tree.png)
 
-For more problems see [4Clojure](https://www.4clojure.com/)
+For more coding problems see [4Clojure](https://www.4clojure.com/)
