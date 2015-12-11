@@ -397,4 +397,65 @@ NOT y -> i"))))
           (partition-by identity x))))
 
 ;; part 1 and part 2
-(count (last (take 41 (iterate count-encode "1321131112"))))
+(count (nth (iterate count-encode "1321131112") 40))
+
+
+
+;; day 11
+
+(defn adjust-val [x]
+  (char
+   (+
+    (if (<= (byte x) (byte \9)) 49 10)
+    (byte x))))
+
+(defn adjust-val-back [x]
+  (char
+   (-
+    (byte x)
+    (if (<= (byte x) (byte \j)) 49 10))))
+
+#_(adjust-val-back (adjust-val \0))
+#_(adjust-val-back (adjust-val \a))
+
+(defn straight-test [x]
+  (some (fn [r]
+          (let [[a b c] (map byte r)]
+            (and a b c (= (+ 2 a) (inc b) c))))
+        (partition 3 1 x)))
+
+(defn not-iol [x]
+  (not (re-matches #".*(i|o|l).*" (apply str x)))) 
+
+(defn has-different-pairs [x]
+  (< 1
+     (count (set (map first (filter #(apply = %) (partition 2 1 x)))))))
+
+(defn valid-password [p]
+  (and
+   (not-iol p)
+   (has-different-pairs p)
+   (straight-test p)))
+
+(defn int-to-word [i]
+  (map adjust-val (java.lang.Long/toString i 26)))
+
+(defn word-to-int [s]
+  (java.lang.Long/valueOf (apply str (map adjust-val-back s)) 26))
+
+#_(word-to-int "cqjxjnds")
+#_(word-to-int (int-to-word 500))
+
+(defn base26-passwords [start-int]
+  (filter valid-password
+          (map int-to-word (iterate inc start-int))))
+
+;; part 1
+(apply str
+       (first
+        (base26-passwords (word-to-int "cqjxjnds"))))
+
+;; part 2
+(apply str
+       (second
+        (base26-passwords (word-to-int "cqjxxyzz"))))
