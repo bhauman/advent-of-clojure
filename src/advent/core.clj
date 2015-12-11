@@ -403,21 +403,6 @@ NOT y -> i"))))
 
 ;; day 11
 
-(defn adjust-val [x]
-  (char
-   (+
-    (if (<= (byte x) (byte \9)) 49 10)
-    (byte x))))
-
-(defn adjust-val-back [x]
-  (char
-   (-
-    (byte x)
-    (if (<= (byte x) (byte \j)) 49 10))))
-
-#_(adjust-val-back (adjust-val \0))
-#_(adjust-val-back (adjust-val \a))
-
 (defn straight-test [x]
   (some (fn [r]
           (let [[a b c] (map byte r)]
@@ -429,33 +414,52 @@ NOT y -> i"))))
 
 (defn has-different-pairs [x]
   (< 1
-     (count (set (map first (filter #(apply = %) (partition 2 1 x)))))))
+     (count (set (filter #(apply = %) (partition 2 1 x))))))
 
-(defn valid-password [p]
+(defn valid-password? [p]
   (and
    (not-iol p)
    (has-different-pairs p)
    (straight-test p)))
 
-(defn int-to-word [i]
-  (map adjust-val (java.lang.Long/toString i 26)))
+(defn adjust-char [x]
+  (char
+   (+
+    (if (<= (byte x) (byte \9)) 49 10)
+    (byte x))))
 
-(defn word-to-int [s]
-  (java.lang.Long/valueOf (apply str (map adjust-val-back s)) 26))
+(defn adjust-char-back [x]
+  (char
+   (-
+    (byte x)
+    (if (<= (byte x) (byte \j)) 49 10))))
 
-#_(word-to-int "cqjxjnds")
-#_(word-to-int (int-to-word 500))
+(def base26->password #(apply str (mapv adjust-char %)))
+
+(def password->base26 #(apply str (mapv adjust-char-back %)))
+
+#_(adjust-char-back (adjust-char \0))
+#_(adjust-char-back (adjust-char \a))
+
+(defn long->password [i]
+  (-> i
+      (java.lang.Long/toString 26)
+      base26->password))
+
+(defn password->long [s]
+  (-> s
+      password->base26
+      (java.lang.Long/valueOf 26)))
+
+#_(password->long "cqjxjnds")
+#_(password->long (long->password 500))
 
 (defn base26-passwords [start-int]
-  (filter valid-password
-          (map int-to-word (iterate inc start-int))))
+  (filter valid-password?
+          (map long->password (iterate inc start-int))))
 
 ;; part 1
-(apply str
-       (first
-        (base26-passwords (word-to-int "cqjxjnds"))))
+(first (base26-passwords (password->long "cqjxjnds")))
 
 ;; part 2
-(apply str
-       (second
-        (base26-passwords (word-to-int "cqjxxyzz"))))
+(second (base26-passwords (password->long "cqjxxyzz")))
