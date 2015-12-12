@@ -6,6 +6,7 @@
    [clojure.pprint :as p]
    [clojure.set :refer [union]]
    [clojure.math.combinatorics :as combo]
+   [clojure.walk :refer [prewalk postwalk]]
    [digest :refer [md5]]))
 
 ;; day 1
@@ -459,7 +460,33 @@ NOT y -> i"))))
           (map long->password (iterate inc start-int))))
 
 ;; part 1
-(first (base26-passwords (password->long "cqjxjnds")))
+#_(first (base26-passwords (password->long "cqjxjnds")))
 
 ;; part 2
-(second (base26-passwords (password->long "cqjxxyzz")))
+#_(second (base26-passwords (password->long "cqjxxyzz")))
+
+
+;; day 12
+
+(def prob12 (slurp (io/resource "prob12")))
+
+(def ex12 (subs prob12 0 100))
+
+;; part 1
+#_(reduce + (map #(Long/parseLong %) (re-seq #"[-]{0,1}\d+"  prob12)))
+
+;; part 2
+
+(defn has-red? [m]
+  (some (fn [me] ((set me) "red")) m))
+
+#_(as-> prob12 a
+    (string/replace a ":" " ")
+    (read-string a)           
+    (prewalk #(cond
+                (and (map? %) (has-red? %)) nil
+                (map? %) (seq %)
+                :else %) a)
+    (flatten a)
+    (filter integer? a)
+    (reduce + a))
