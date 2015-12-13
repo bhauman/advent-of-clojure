@@ -490,3 +490,50 @@ NOT y -> i"))))
     (flatten a)
     (filter integer? a)
     (reduce + a))
+
+
+;; Day 13
+
+(def prob13
+  (line-seq (io/reader (io/resource "prob13"))))
+
+(defn line-to-data13 [line]
+  (as-> line x
+    (string/replace x "." "")
+    (str "(" x ")")
+    (read-string x)
+    ((juxt (comp set (juxt first last))
+           #(({'lose - 'gain +} (nth % 2)) (nth % 3))) x)
+    (into {} [x])))
+
+(def seating-pair-values (reduce (partial merge-with +) (map line-to-data13 prob13)))
+
+(def guest-names (reduce union (keys seating-pair-values)))
+
+(defn arrangement-value [pair-values order]
+  (reduce +
+          (map (comp pair-values set)
+               (partition 2 1 (cons (last order) order)))))
+
+;; part 1
+(reduce max (map (partial arrangement-value seating-pair-values)
+                 (combo/permutations guest-names)))
+
+;; part 2
+(let [pair-values (into seating-pair-values
+                        (map #(vector #{'me %} 0) guest-names))]
+  (reduce max (map (partial arrangement-value pair-values)
+                   (combo/permutations (cons 'me guest-names)))))
+
+
+
+
+
+
+
+
+
+
+
+
+
