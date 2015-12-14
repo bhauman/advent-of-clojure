@@ -8,7 +8,10 @@ update this repo each day.
 To have the most fun possible, solve these challenges on your own before
 looking at these solutions.
 
-See the [`src/advent/core.clj`](https://github.com/bhauman/advent-of-clojure/blob/master/src/advent/core.clj) file.
+See the [`src/advent`](https://github.com/bhauman/advent-of-clojure/tree/master/src/advent) directory for the solutions.
+
+See the [`doc`](https://github.com/bhauman/advent-of-clojure/tree/master/doc)
+directory for the problem statements.
 
 ![advent tree](https://raw.githubusercontent.com/bhauman/advent-of-clojure/master/resources/advent_tree.png)
 
