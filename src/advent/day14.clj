@@ -28,7 +28,7 @@
          (* speed travel))))))
 
 ; part 1
-#_(reduce max (map #(traveled % 2503) test-reindeer))
+#_(reduce max (map #(traveled % 2503) reindeer))
 
 (defn winners [reindeer seconds]
   (let [results (map
