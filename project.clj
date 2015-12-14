@@ -8,5 +8,5 @@
                  [org.clojure/math.combinatorics "0.1.1"]
                  [org.clojure/core.match "0.2.2"]]
   :profiles { :dev { :dependencies [[org.clojure/tools.nrepl "0.2.12"]]}
-             :repl { :plugins [[cider/cider-nrepl "0.10.0-SNAPSHOT"]]
-                     :repl-options {:init (set! *print-length* 500)}} })
+              :repl { :plugins [[cider/cider-nrepl "0.10.0-SNAPSHOT"]]
+                      :repl-options {:init (set! *print-length* 500)}} })
