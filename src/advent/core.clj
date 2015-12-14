@@ -9,5 +9,5 @@
    [clojure.walk :refer [prewalk postwalk]]
    [digest :refer [md5]]))
 
-;; workarea 
+;; workarea
 
