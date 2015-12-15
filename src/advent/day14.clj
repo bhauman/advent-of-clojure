@@ -6,9 +6,7 @@
 (def prob14 (line-seq (io/reader (io/resource "prob14"))))
 
 (defn line-to-data [line]
-  (->> line
-       (re-seq #"\d+")
-       (map read-string)))
+  (map read-string (re-seq #"\d+" line)))
 
 (def reindeer (map line-to-data prob14))
 
