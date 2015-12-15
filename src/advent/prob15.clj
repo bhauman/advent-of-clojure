@@ -8,31 +8,32 @@
 (def prob15
   (line-seq (io/reader (io/resource "prob15"))))
 
-(defn read-line [line]
+(defn read-ingredient [line]
   (as-> line x
     (string/replace x ":" "")
     (read-string (str "(" x ")"))
     (filter integer? x)))
 
-(def ingredients (map read-line prob15))
+(def ingredients (map read-ingredient prob15))
 
 (defn ingredient-value [ingred tsp]
   (map #(* tsp %) (butlast ingred)))
 
-(defn combo-value [parts]
+(defn recipe-value [parts]
   (reduce *
           (map #(max 0 %)
                (reduce #(map + %1 %2) (map ingredient-value ingredients parts)))))
 
 (def partition-number
-  (memoize (fn [parts i]
-             (cond
-               (= 1 parts) [[i]] 
-               :else (mapcat
-                      #(map (fn [x] (cons % x)) (partition-number (dec parts) (- i %)))
-                      (range (inc i)))))))
+  (memoize
+   (fn [parts i]
+     (cond
+       (= 1 parts) [[i]] 
+       :else (mapcat
+              #(map (fn [x] (cons % x)) (partition-number (dec parts) (- i %)))
+              (range (inc i)))))))
 
-#_(def res (mapv (juxt identity combo-value) (partition-number 4 100)))
+#_(def res (mapv (juxt identity recipe-value) (partition-number 4 100)))
 
 ;; part 1 
 #_(apply max (map second res))
