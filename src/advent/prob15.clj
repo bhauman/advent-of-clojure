@@ -24,22 +24,18 @@
        (map #(max 0 %))
        (reduce *)))
 
-(def partition-number
-  (memoize
-   (fn [parts i]
-     (cond
-       (= 1 parts) [[i]] 
-       :else (mapcat
-              #(map (fn [x] (cons % x)) (partition-number (dec parts) (- i %)))
-              (range (inc i)))))))
+(defn partitions [i]
+  (for [x (range (inc i))
+        y (range (inc (- i x)))
+        z (range (inc (- i x y)))]
+    [x y z (- i x y z)]))
 
-#_(def res (mapv (juxt identity recipe-value) (partition-number 4 100)))
+#_(def res (mapv (juxt identity recipe-value) (partitions 100)))
 
 ;; part 1 
 #_(apply max (map second res))
 
 ;; part 2
-
 (defn calorie-value [parts]
   (reduce + (map * parts (map last ingredients))))
 
