@@ -3,8 +3,6 @@
    [clojure.java.io :as io]
    [clojure.string :as string]))
 
-;; workarea
-
 (def prob15
   (line-seq (io/reader (io/resource "prob15"))))
 
@@ -20,9 +18,11 @@
   (map #(* tsp %) (butlast ingred)))
 
 (defn recipe-value [parts]
-  (reduce *
-          (map #(max 0 %)
-               (reduce #(map + %1 %2) (map ingredient-value ingredients parts)))))
+  (->> parts
+       (map ingredient-value ingredients)
+       (reduce #(map + %1 %2))
+       (map #(max 0 %))
+       (reduce *)))
 
 (def partition-number
   (memoize
