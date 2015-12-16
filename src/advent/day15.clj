@@ -1,7 +1,8 @@
-(ns advent.prob15
+(ns advent.day15
   (:require
    [clojure.java.io :as io]
-   [clojure.string :as string]))
+   [clojure.string :as string]
+   [clojure.math.combinatorics :refer [selections combinations]]))
 
 (def prob15
   (line-seq (io/reader (io/resource "prob15"))))
