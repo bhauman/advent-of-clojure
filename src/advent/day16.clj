@@ -30,9 +30,8 @@
    :perfumes 1})
 
 (def clues-dist-map
-  (->> clues
-       (map (fn [[k v]] [k (partial dist* v)]))
-       (into {})))
+  (zipmap (keys clues)
+          (map #(partial dist* %) (vals clues))))
 
 (defn distance [clues-dist-map grandma]
   (->> grandma
