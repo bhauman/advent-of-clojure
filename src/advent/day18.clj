@@ -16,7 +16,6 @@
 
 (def offsets [[0 1] [0 -1] [1 0] [-1 0] [1 1] [1 -1] [-1 1] [-1 -1]])
 
-
 (def get-neighbors
   (memoize
    (fn [location]
