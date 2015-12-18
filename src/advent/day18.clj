@@ -16,9 +16,11 @@
 
 (def offsets [[0 1] [0 -1] [1 0] [-1 0] [1 1] [1 -1] [-1 1] [-1 -1]])
 
-(defn get-neighbors [location]
-  (into #{} (filter #(every? (fn [x] (<= 0 x 99)) %)
-                    (map #(map + % location) offsets))))
+(def get-neighbors
+  (memoize
+   (fn [location]
+     (into #{} (filter #(every? (fn [x] (<= 0 x 99)) %)
+                       (map #(map + % location) offsets))))))
 
 (defn count-neighbors [board location]
   (count (intersection board (get-neighbors location))))
