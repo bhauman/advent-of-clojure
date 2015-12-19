@@ -30,29 +30,50 @@
           (cons (concat replace (drop (count match) s)) replacements)
           replacements))))
 ; part 1
-(count (set (mapcat #(rule-replacements % molecule)
+#_(count (set (mapcat #(rule-replacements % molecule)
                     rules)))
 
-;; invert rule operation
-(defn rule-reductions [[match replace :as rule] s]
-  (if (empty? s) []
-      (let [replacements (map #(cons (first s) %)
-                              (rule-reductions rule (rest s)))]
-        (if (= replace (take (count replace) s))
-          (cons (concat match (drop (count replace) s)) replacements)
-          replacements))))
+(defn apply-rule [[match replace] s]
+  (let [n (count replace)]
+    (when (= replace (take n s))
+      (concat match (drop n s)))))
 
-(defn narrow-field-by [n strs]
-  (let [groups (group-by count strs)
-        lengths (take n (sort (keys groups)))]
-    (mapcat groups lengths)))
+(def rule-reductions
+  (memoize
+   (fn self [s]
+     (if (empty? s) []
+         (let [replacements (map #(cons (first s) %)
+                                 (self (rest s)))]
+           (if-let [rule-results (not-empty (keep #(apply-rule % s) (take 40 rules)))]
+             (concat rule-results replacements)
+             replacements))))))
+
+(def test-rules
+  (map parse-rule
+       (string/split "e => H
+e => O
+H => HO
+H => OH
+O => HH"
+#"\n" )))
+
+(count (time (rule-reductions molecule)))
+
+(def narrow-field-by
+  (fn [n strs]
+    (let [groups (group-by count strs)
+          lengths (take n (sort (keys groups)))
+          result (mapcat groups lengths)]
+      (println lengths)
+      (println (count result))
+      result)))
 
 (defn reduce-step [strs]
   (into #{}
-   (mapcat
-    #(mapcat (fn [rule] (rule-reductions rule %))
-             rules)
-    (narrow-field-by 1 strs)))
+        (apply concat
+               (pmap
+                #(rule-reductions %)
+                (narrow-field-by 1 strs))))
 
   ;; could sort by length and take the shortest ones
   )
