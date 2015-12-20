@@ -1,13 +1,6 @@
-(ns advent.core
+(ns advent.day19
   (:require
-   [clojure.java.io :as io]
-   [clojure.string :as string]
-   [clojure.core.match :refer [match]]
-   [clojure.pprint :as p]
-   [clojure.set :refer [union intersection difference]]
-   [clojure.math.combinatorics :as combo]
-   [clojure.walk :refer [prewalk postwalk]]
-   [digest :refer [md5]]))
+   [clojure.java.io :as io]))
 
 ;; workarea
 (def rule-lines
@@ -50,7 +43,7 @@
 
 ; part 2
 ; this is set up to be solved in reverse easily
-; discovered this by reading the forum
+; discovered this by reading the adventofcode reddit forum
 
 (count (take-while #(not= % [\e])
             (iterate (partial first-rule-reduce reversed-rules)
