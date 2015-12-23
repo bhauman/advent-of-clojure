@@ -125,7 +125,3 @@
                 apply-effects (partial hard-game apply-effects)]
     (first (filter win? (iterate (partial step-state 23)
                                tstate))))
-
-
-
-
