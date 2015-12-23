@@ -8,15 +8,7 @@
   [73  2 2 0   0 0]
   [113 0 0 7   0 6]
   [173 3 0 0   0 6]
-  [229 0 0 0 101 5]}
-  )
-
-(def spell-names
-  {[53  4 0 0   0 0] :missle
-   [73  2 2 0   0 0] :drain
-   [113 0 0 7   0 6] :shield
-   [173 3 0 0   0 6] :poison
-   [229 0 0 0 101 5] :recharge})
+  [229 0 0 0 101 5]})
 
 (def boss
   [0 8 0 0 0 0 0])
@@ -24,43 +16,33 @@
 (defn update-effects [{:keys [effects] :as state} action]
   (let [effects (filter (comp pos? last)
                         (map #(update-in % [5] dec) effects))]
-    (let [next-mana (- (:mana state) (first action))]
-      (if (and
-           (pos? (last action))
-           #_(pos? next-mana)
-           #_(not ((set (map first effects)) (first action))))
-        (assoc state
-               :cost (+ (:cost state) (first action))
-               :mana next-mana
-               :effects (conj effects action))
-        (assoc state :effects effects)))))
+    (if (pos? (last action))
+      (-> state
+          (update-in [:cost] + (first action))
+          (update-in [:mana] - (first action))
+          (assoc :effects (conj effects action)))
+      (assoc state :effects effects))))
 
 (defn apply-effects [state action]
-  (let [;{:keys [effects] :as state} (update-effects state action)
-        effects (reduce #(map + %1 %2) [0 0 0 0 0 0] (:effects state))
+  (let [effects (reduce #(map + %1 %2) [0 0 0 0 0 0] (:effects state))
         state   (-> state
                     (update-in [:boss]   - (second effects))
-                    (update-in [:mana]   + (nth effects 4))
-                    #_(update-in [:player] + (nth effects 3)))]
+                    (update-in [:mana]   + (nth effects 4)))]
     (update-effects
      (if (and (= boss action)
               (pos? (:boss state)))
        (update-in state [:player] - (max 1 (- (second action) (nth effects 3))))
        (if (and (zero? (last action)) (not= boss action))
          ;; immediate
-         (assoc state
-                :cost   (+ (:cost state)   (first action)) 
-                :mana   (- (:mana state)   (first action))
-                :boss   (- (:boss state)   (second action))
-                :player (+ (:player state) (nth action 2)))
+         (-> state
+             (update-in [:cost] + (first action))
+             (update-in [:mana] - (first action))
+             (update-in [:boss] - (second action))
+             (update-in [:player] + (nth action 2)))
          state))
      action)))
 
-(def tstate
-  {:player 50
-   :boss 55
-   :mana 500
-   :cost 0})
+(def tstate {:player 50 :boss 55 :mana 500 :cost 0})
 
 (defn possible-moves [state]
   (let [ids (difference 
@@ -77,31 +59,40 @@
       (and (zero? (count (possible-moves state))) :boss)
       (and (<= mana 0) :boss)))
 
-(defn game [state cost-so-far depth player?]
+;; this is the magic sauce
+;; evaluate the rate of damage and make sure we don't get too far ahead
+(defn cost-fn [state]
+  (let [spent (:cost state)
+        total-damage (- (:boss tstate) (:boss state))
+        total-loss   (- (:player tstate) (:player state))
+        distance     (java.lang.Math/abs (- (:player state) (:boss state)))]
+    (float (- (- (/ total-damage spent)
+                 (/ distance (/ spent 1.0005))
+                 (/ total-loss spent))))))
+
+#_(< (cost-fn {:player 16, :boss 12, :mana 141, :cost 1368, :effects ()})
+     (cost-fn {:player 12, :boss 12, :mana 141, :cost 1369, :effects ()}))
+
+(defn game [state depth player?]
   (let [winner? (win? state)]
     (if (or (zero? depth) winner?)
       (if (and winner? (not= winner? :player))
-        30000000                ;; ended up tweaking this value a bit
-        (max 0 (+ cost-so-far (* 10 (- (:boss state) (:player state))))))
-    (if player?
-      (reduce min 30000000
-              (map #(game (apply-effects state %) (+ 100000 (first %) cost-so-far) (dec depth) (not player?))
-                   (possible-moves state)))
-      (game (apply-effects state boss)
-            (+ 10 cost-so-far)
-            (dec depth)  
-            (not player?))))))
+        30000000
+        (cost-fn state))
+      (if player?
+        (reduce min 30000000
+                (map #(game (apply-effects state %) (dec depth) (not player?))
+                     (possible-moves state)))
+        (game (apply-effects state boss) (dec depth) (not player?))))))
 
 (defn which-move [state search-depth]
   (let [mvs (sort-by second
                      (map #(vector
                             %
-                            (game (apply-effects state %) (first %) search-depth false)) (possible-moves state)))
+                            (game (apply-effects state %) search-depth false)) (possible-moves state)))
         mvs' (group-by second mvs)
         k   (apply min (keys mvs'))]
-    (prn mvs')
-    ;; select a random minimum
-    #_(ffirst mvs) 
+    #_(prn mvs')
     (first (rand-nth (get mvs' k)))))
 
 (defn step-state [depth state]
@@ -111,15 +102,15 @@
                      state
                      (apply-effects state boss))]
     (prn move)
-    (prn (spell-names move))
-    (prn (count (possible-moves next-state)))
+    #_(prn (spell-names move))
+    #_(prn (count (possible-moves next-state)))
     (prn next-state)
     (prn (:cost next-state))
     next-state))
 
-; part 1
-#_(first (filter win? (iterate (partial step-state 17)
-                               tstate)))
+;; part 1
+#_(with-redefs [game (memoize game)]
+    (first (filter win? (iterate (partial step-state 22) tstate))))
 
 (defn hard-game [game-fn state action]
   (if (not= boss action)
@@ -130,6 +121,11 @@
     (game-fn state action)))
 
 ; part 2
-#_(with-redefs [apply-effects (partial hard-game apply-effects)]
-    (first (filter win? (iterate (partial step-state 22)
+#_(with-redefs [game (memoize game)
+                apply-effects (partial hard-game apply-effects)]
+    (first (filter win? (iterate (partial step-state 23)
                                tstate))))
+
+
+
+
