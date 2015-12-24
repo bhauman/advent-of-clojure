@@ -24,9 +24,7 @@
 ;; part 1
 #_(first
    (sort (map #(apply * %)
-              (count (second (first (group-by count (find-sets= (reverse input) (/ total 3)))))))))
-
-(count (find-sets= (reverse input) (/ total 3)))
+              (second (first (group-by count (find-sets= (reverse input) (/ total 3))))))))
 
 ;; part 2
 #_(first
