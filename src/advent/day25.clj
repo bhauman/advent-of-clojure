@@ -16,4 +16,4 @@
       (recur (rem (* x 252533) 33554393)
              (dec c)))))
 
-(at-pos (pos-from-row-col 2947 3029))
+#_(at-pos (pos-from-row-col 2947 3029))
