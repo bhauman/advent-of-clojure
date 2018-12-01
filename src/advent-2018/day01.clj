@@ -4,10 +4,9 @@
    [clojure.string :as string]))
 
 (def data
-  (-> (io/resource "2018/day01")
+  (->> (io/resource "2018/day01")
       slurp
-      (string/replace "+" "")
-      ((partial format "(%s)"))
+      (format "(%s)")
       read-string))
 
 ;; part 1
@@ -17,15 +16,13 @@
 
 ;; part 2
 (defn part2 [d]
-  (->> (mapcat identity (repeat d))
-       (reductions (fn [[a b] v]
+  (->> (cycle d)
+       (reductions (fn [[i a b] v]
                      (let [sum (+ a v)]
-                       [sum (conj b sum)]))
-                   [0 #{}])
-       (map-indexed (fn [i x] (cons i x)))
-       (filter (fn [[index _ sums]] (not= index (count sums))))
+                       [(inc i) sum (conj b sum)]))
+                   [0 0 #{0}])
+       (filter (fn [[index _ sums]] (not= index (dec (count sums)))))
        first
-       second
-       time))
+       second))
 
 #_(part2 data)
