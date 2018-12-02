@@ -16,6 +16,7 @@ available for you to get another point of view on the problem.
 * [2015](https://github.com/bhauman/advent-of-clojure/tree/master/src/advent-2015)
 * [2016](https://github.com/bhauman/advent-of-clojure/tree/master/src/advent-2016)
 * [2017](https://github.com/bhauman/advent-of-clojure/tree/master/src/advent-2017)
+* [2018](https://github.com/bhauman/advent-of-clojure/tree/master/src/advent-2018)
 
 ![advent tree](https://raw.githubusercontent.com/bhauman/advent-of-clojure/master/resources/2015/advent_tree.png)
 
