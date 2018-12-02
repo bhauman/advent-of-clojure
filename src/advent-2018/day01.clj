@@ -16,13 +16,9 @@
 
 ;; part 2
 (defn part2 [d]
-  (->> (cycle d)
-       (reductions (fn [[i a b] v]
-                     (let [sum (+ a v)]
-                       [(inc i) sum (conj b sum)]))
-                   [0 0 #{0}])
-       (filter (fn [[index _ sums]] (not= index (dec (count sums)))))
-       first
-       second))
+  (reduce
+   #(if (%1 %2) (reduced %2) (conj %1 %2))
+   #{0}
+   (reductions + (cycle d))))
 
 #_(part2 data)
