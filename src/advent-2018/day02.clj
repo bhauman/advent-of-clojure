@@ -48,19 +48,16 @@
 
 ;; faster efficient tree search
 (defn search [words]
-  (let [grouped (med/map-vals (partial map rest) (group-by first words))]
-    (or
-     (and (< 1 (count grouped))
-          (->> (vals grouped)
-               (map set)
-               (apply set/intersection)
-               first))
-      (some->> grouped
-               (med/filter-vals #(< 1 (count %)))
-               (med/map-vals search)
-               (med/filter-vals some?)
-               first
-               (apply cons)))))
+  (when (< 1 (count words))
+    (let [grouped (med/map-vals (partial map rest) (group-by first words))]
+      (or (first
+           (apply set/intersection
+                  (map set (vals grouped))))
+          (some->> grouped
+                   (med/map-vals search)
+                   (med/filter-vals some?)
+                   first
+                   (apply cons))))))
 
 #_(time (apply str (search data)))
 
