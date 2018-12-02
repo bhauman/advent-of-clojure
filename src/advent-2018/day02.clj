@@ -46,26 +46,32 @@
               axcye
               wvxyz]))
 
-;; faster efficient tree search
+;; more efficient tree search
 (defn search [words]
   (when (< 1 (count words))
-    (let [grouped (med/map-vals (partial map rest) (group-by first words))
-          sets  (map set (vals grouped))        
-          mapped (ffirst (keep
-                          #(not-empty (apply set/intersection %))
-                          (combo/combinations sets 2)))]
-      (or mapped
-          (some->> grouped
-                   (med/map-vals search)
-                   (med/filter-vals some?)
-                   first
-                   (apply cons))))))
+    ;; separate into groups whos first letters differ from the other groups
+    (let [grouped (med/map-vals (partial map rest) (group-by first words))]
+      ;;two cases
+      (or
+       ;; everything upto now is equal except for the current letters
+       ;; check to see if any words are equal after this point
+       (->> (combo/combinations (map set (vals grouped)) 2)
+            (keep #(not-empty (apply set/intersection %)))
+            ffirst)
+       ;; the search is now divided between words that have equal beginnings
+       (some->> grouped
+                (med/map-vals search)
+                (med/filter-vals some?)
+                first
+                (apply cons))))))
 
 #_(= (apply str (search data)) (problem-2 data))
 
 #_ (time (apply str (search data)))
+;; 10 ms
 
-#_ (time (problem-2 data))
+#_(time (problem-2 data))
+;; 90ms
 
 #_(search ["abc" "ddd" "zbc" "ahg" "zzz"])
 
