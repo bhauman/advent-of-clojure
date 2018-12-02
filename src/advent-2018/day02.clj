@@ -49,7 +49,6 @@
 ;; faster efficient tree search
 (defn search [words]
   (let [grouped (med/map-vals (partial map rest) (group-by first words))]
-    (swap! steps inc)
     (or
      (and (< 1 (count grouped))
           (->> (vals grouped)
