@@ -2,6 +2,8 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as string]
+   [clojure.set :as set]
+   [medley.core :as med]
    [clojure.math.combinatorics :as combo]))
 
 (def data
@@ -33,8 +35,35 @@
          first
          (apply str))))
 
-#_(problem-2 data)
+#_ (time (problem-2 data))
 
+(def test-data-2
+  (map name '[abcde
+              fghij
+              klmno
+              pqrst
+              fguij
+              axcye
+              wvxyz]))
+
+;; faster efficient tree search
+(defn search [words]
+  (let [grouped (med/map-vals (partial map rest) (group-by first words))]
+    (swap! steps inc)
+    (or
+     (and (< 1 (count grouped))
+          (->> (vals grouped)
+               (map set)
+               (apply set/intersection)
+               first))
+      (some->> grouped
+               (med/filter-vals #(< 1 (count %)))
+               (med/map-vals search)
+               (med/filter-vals some?)
+               first
+               (apply cons)))))
+
+#_(time (apply str (search data)))
 
 
 
