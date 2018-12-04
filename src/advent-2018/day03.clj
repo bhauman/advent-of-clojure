@@ -29,8 +29,7 @@
 #_ (time  (part1 data))
 
 (defn part2 [d cloth]
-  (let [actual-count-map
-        (med/map-vals count (group-by identity (vals cloth)))
+  (let [actual-count-map (frequencies (vals cloth))
         ideal-count-map
         (into {} (map (fn [[id _ _ w h]] [id (* w h)])) d)]
     (->> (keys actual-count-map)
@@ -38,4 +37,4 @@
                      (get ideal-count-map %)))
          first)))
 
-#_(part2 data (fabric data))
+#_ (time (part2 data (fabric data)))
