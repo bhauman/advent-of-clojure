@@ -50,7 +50,8 @@
 (defn search [words]
   (when (< 1 (count words))
     ;; separate into groups whos first letters differ from the other groups
-    (let [grouped (med/map-vals (partial map rest) (group-by first words))]
+    (let [grouped (med/map-vals (partial map #(subs % 1))
+                                (group-by first words))]
       ;;two cases
       (or
        ;; everything upto now is equal except for the current letters
@@ -68,7 +69,7 @@
 #_(= (apply str (search data)) (problem-2 data))
 
 #_ (time (apply str (search data)))
-;; 10 ms
+;; 5 ms
 
 #_(time (problem-2 data))
 ;; 90ms
