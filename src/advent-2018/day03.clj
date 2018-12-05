@@ -1,8 +1,7 @@
 (ns advent-2018.day03
   (:require
    [clojure.java.io :as io]
-   [clojure.string :as string]
-   [medley.core :as med]))
+   [clojure.string :as string]))
 
 (def data
   (->> (line-seq (io/reader (io/resource "2018/day03")))
@@ -29,12 +28,12 @@
 #_ (time  (part1 data))
 
 (defn part2 [d cloth]
-  (let [actual-count-map (frequencies (vals cloth))
-        ideal-count-map
+  (let [actual-area-map (frequencies (vals cloth))
+        ideal-area-map
         (into {} (map (fn [[id _ _ w h]] [id (* w h)])) d)]
-    (->> (keys actual-count-map)
-         (filter #(= (get actual-count-map %)
-                     (get ideal-count-map %)))
+    (->> (keys actual-area-map)
+         (filter #(= (get actual-area-map %)
+                     (get ideal-area-map %)))
          first)))
 
 #_ (time (part2 data (fabric data)))
